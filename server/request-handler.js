@@ -11,6 +11,10 @@ this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
 
 **************************************************************/
+
+const fs = require('fs');
+const path = require('path');
+
 var defaultCorsHeaders = {
   'access-control-allow-origin': '*',
   'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -21,7 +25,7 @@ var defaultCorsHeaders = {
 var msg = {results: []};
 
 var requestHandler = function(request, response) {
-  console.log('Serving request type ' + request.method + ' for url ' + request.url);
+  console.log('Serving request type ' + request.method + ' for url ' + request.url)
   var statusCode = 404;
   var headers = defaultCorsHeaders;
   headers['Content-Type'] = 'application/json';
@@ -33,16 +37,18 @@ var requestHandler = function(request, response) {
     response.end('statusCode');
   }
 
-  if (method === 'GET' && url === '/classes/messages') {
+  if ((method === 'GET' || method === 'OPTIONS') && url.startsWith('/classes/messages')) {
     statusCode = 200;
     response.writeHead(statusCode, headers);
     request.on('error', (err) => {
       console.error(err);
     });
+    // console.log(msg);
+    // console.log(JSON.stringify(msg));
     response.end(JSON.stringify(msg));
   }
-  
-  if (method === 'POST' && url === '/classes/messages') {
+
+  if (method === 'POST' && url.startsWith('/classes/messages')) {
     statusCode = 201;
     response.writeHead(statusCode, headers);
     request.on('error', (err) => {
@@ -51,7 +57,7 @@ var requestHandler = function(request, response) {
     request.on('data', (data) => {
       msg.results.push(JSON.parse(data));
     });
-    response.end(console.log(msg.results));
+    response.end(msg.results);
   }
 };
 
