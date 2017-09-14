@@ -18,46 +18,30 @@ var defaultCorsHeaders = {
   'access-control-max-age': 10 // Seconds.
 };
 
+var msg = {results: []};
+
 var requestHandler = function(request, response) {
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
   var statusCode = 404;
   var headers = defaultCorsHeaders;
-  headers['Content-Type'] = 'text/json';
+  headers['Content-Type'] = 'application/json';
 
   const {method, url} = request;
-  if (request.method === 'GET' && request.url === '/classes/messages') {
+
+  if (!url.startsWith('/classes/messages')) {
+    response.writeHead(statusCode, headers);
+    response.end('statusCode');
+  }
+
+  if (method === 'GET' && url === '/classes/messages') {
     statusCode = 200;
     response.writeHead(statusCode, headers);
-    let results = [];
     request.on('error', (err) => {
       console.error(err);
-    }).on('data', (chunk) => {
-      results.push(chunk);
-    }).on('end', () => {
-      const responseBody = {headers, method, url, results};
-      response.end(JSON.stringify(responseBody));
     });
+    response.end(JSON.stringify(msg));
   }
 
-  if (request.method === 'POST' && request.url === '/classes/messages') {
-    statusCode = 201;
-    response.writeHead(statusCode, headers);
-    let results = [];
-    request.on('error', (err) => {
-      console.error(err);
-    }).on('data', (chunk) => {
-      results.push(chunk);
-    }).on('end', () => {
-      const responseBody = {headers, method, url, results};
-
-      response.end(JSON.stringify(responseBody));
-    });
-  }
-
-  response.on('error', (err) => {
-    console.error(err);
-  });
 };
 
-
-module.exports = requestHandler;
+module.exports.requestHandler = requestHandler;
