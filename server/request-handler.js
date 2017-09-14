@@ -25,7 +25,7 @@ var defaultCorsHeaders = {
 var msg = {results: []};
 
 var requestHandler = function(request, response) {
-  console.log('Serving request type ' + request.method + ' for url ' + request.url)
+  console.log('Serving request type ' + request.method + ' for url ' + request.url);
   var statusCode = 404;
   var headers = defaultCorsHeaders;
   headers['Content-Type'] = 'application/json';
@@ -57,7 +57,7 @@ var requestHandler = function(request, response) {
     request.on('data', (data) => {
       msg.results.push(JSON.parse(data));
     });
-    response.end(msg.results);
+    response.end(JSON.stringify(msg.results));
   }
 };
 

@@ -26,7 +26,7 @@ var app = {
     app.$roomSelect.on('change', app.handleRoomChange);
 
     // Fetch previous messages
-    // app.startSpinner();
+    app.startSpinner();
     app.fetch(false);
 
     // Poll for new messages
@@ -36,13 +36,13 @@ var app = {
   },
 
   send: function(message) {
-    // app.startSpinner();
+    app.startSpinner();
 
     // POST the message to the server
     $.ajax({
       url: app.server,
       type: 'POST',
-      data: message,
+      data: JSON.stringify(message),
       success: function (data) {
         // Clear messages input
         app.$message.val('');
@@ -51,7 +51,9 @@ var app = {
         app.fetch();
       },
       error: function (error) {
+        app.stopSpinner();
         console.error('chatterbox: Failed to send message', error);
+
       }
     });
   },
@@ -63,16 +65,19 @@ var app = {
       data: { order: '-createdAt' },
       contentType: 'application/json',
       success: function(data) {
-        //console.log(data.results);
         // Don't bother if we have nothing to work with
-        if (!data.results || !data.results.length) { return; }
-
+        console.log(data);
+        if (!data.results || !data.results.length) {
+          app.stopSpinner();
+          return;
+        }
         // Store messages for caching later
         app.messages = data.results;
 
         // Get the last message
         var mostRecentMessage = data.results[data.results.length - 1];
-        //Only bother updating the DOM if we have a new message
+        // Only bother updating the DOM if we have a new message
+
         if (mostRecentMessage.objectId !== app.lastMessageId) {
           // Update the UI with the fetched rooms
           app.renderRoomList(data.results);
@@ -97,7 +102,7 @@ var app = {
   renderMessages: function(messages, animate) {
     // Clear existing messages`
     app.clearMessages();
-    // app.stopSpinner();
+    app.stopSpinner();
     if (Array.isArray(messages)) {
       // Add all fetched messages that are in our current room
       messages
@@ -203,7 +208,7 @@ var app = {
         app.$roomSelect.val(roomname);
       }
     } else {
-      // app.startSpinner();
+      app.startSpinner();
       // Store as undefined for empty names
       app.roomname = app.$roomSelect.val();
     }
