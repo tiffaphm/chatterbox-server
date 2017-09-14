@@ -41,7 +41,18 @@ var requestHandler = function(request, response) {
     });
     response.end(JSON.stringify(msg));
   }
-
+  
+  if (method === 'POST' && url === '/classes/messages') {
+    statusCode = 201;
+    response.writeHead(statusCode, headers);
+    request.on('error', (err) => {
+      console.error(err);
+    });
+    request.on('data', (data) => {
+      msg.results.push(JSON.parse(data));
+    });
+    response.end(console.log(msg.results));
+  }
 };
 
 module.exports.requestHandler = requestHandler;
